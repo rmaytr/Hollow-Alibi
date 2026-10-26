@@ -6,7 +6,7 @@ let v=(await host('/api/rooms',{name:'ApiHost',mode:'human',pace:'relaxed'})).bo
 const action=async(c,p)=>{const current=(await c(path)).body;return c(path+'/action',{...p,requestId:crypto.randomUUID(),instanceId:current.instanceId,matchId:current.matchId,round:current.round,phase:current.phase})};
 const epoch=crypto.randomUUID(),voice={epoch,instanceId:v.instanceId,op:'join'};
 assert.equal((await stranger(path+'/voice',voice)).status,403);assert.equal((await host(path+'/voice',voice,'https://wrong.example')).status,403);
-assert.equal((await host(path+'/voice',voice)).status,200);assert.equal((await friend(path+'/voice',voice)).status,200);
+const voiceJoin=await host(path+'/voice',voice);assert.equal(voiceJoin.status,200,JSON.stringify(voiceJoin.body.error));assert.equal((await friend(path+'/voice',voice)).status,200);
 const signal={...voice,op:'signal',target:f.viewerId,targetEpoch:epoch,description:{type:'offer',sdp:'v=0\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111\r\n'}};
 assert.equal((await host(path+'/voice',signal)).status,200);assert.equal((await friend(path+'/voice',{...voice,op:'poll'})).body.signals.length,1);assert.equal((await host(path+'/voice',{...voice,op:'poll'})).body.signals.length,0);
 assert.equal((await host(path+'/voice',{...signal,target:'stranger'})).status,409);assert.equal((await host(path+'/voice',{...signal,description:{type:'offer',sdp:'v=0'+ 'x'.repeat(18000)}})).status,413);
