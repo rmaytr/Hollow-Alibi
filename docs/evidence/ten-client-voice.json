@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "base": "http://127.0.0.1:5183",
+  "checks": [
+    "10 browsers: all 90 directed audio paths received RTP; microphone mute disables tracks",
+    "Voice leave closes connections; remote rejoin preserves incoming mute",
+    "Local reconnect also preserves incoming mute",
+    "Expired voice lease automatically rejoins after signaling interruption and retains mute",
+    "Full 1v1 five-round showdown, independent scoring oracle, refresh, recap and rematch",
+    "Full solo match with mixed bot difficulties on 320px viewport"
+  ],
+  "errors": [],
+  "limitation": "Synthetic microphone transport, not human speech quality or cross-network TURN testing."
+}

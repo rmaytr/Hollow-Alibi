@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "forcedRelay": true,
+  "checks": [
+    "2 browsers: all 2 directed audio paths received RTP; microphone mute disables tracks",
+    "Voice leave closes connections; remote rejoin preserves incoming mute",
+    "Local reconnect also preserves incoming mute",
+    "Expired voice lease automatically rejoins after signaling interruption and retains mute"
+  ]
+}

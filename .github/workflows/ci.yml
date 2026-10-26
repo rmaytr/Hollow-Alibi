@@ -1,0 +1,51 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run docs:check
+      - run: npm run build
+      - run: npm run db:setup
+      - run: npx playwright install --with-deps chromium
+      - name: Verify local API and browser flow
+        shell: bash
+        run: |
+          npm run start -- --port 5183 > preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in {1..60}; do
+            if curl --silent --fail http://127.0.0.1:5183/ > /dev/null; then ready=1; break; fi
+            if ! kill -0 "$preview_pid" 2>/dev/null; then cat preview.log; exit 1; fi
+            sleep 1
+          done
+          if [ "$ready" != 1 ]; then cat preview.log; exit 1; fi
+          npm run test:api
+          npm run test:smoke
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: failure-evidence
+          path: |
+            test-results/
+            preview.log
+          retention-days: 7
