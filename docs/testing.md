@@ -6,6 +6,8 @@
 
 TypeScript, production build and local Markdown target checks are separate gates. `docs:check` verifies paths and rejects machine-specific document links; it is not a full visual Markdown renderer.
 
+API regression checks also reject oversized bodies with known length and chunked transfer encoding, then confirm the room is still readable. This covers bounded rejected-upload cleanup in the local Worker proxy; all origin, membership and size assertions remain enabled.
+
 `test:api` checks HTTP authorization, privacy, strict actions, assigned targets, voice bounds/isolation and a two-player round. `test:smoke` uses two independent contexts at 1440px and 320px: create/join/start, claims, judgments, score consistency, assigned judges, overflow and refresh. Normal CI runs these against a freshly initialized local database and built Worker, without production secrets. The badge reflects actual GitHub status.
 
 ## Optional browser suite

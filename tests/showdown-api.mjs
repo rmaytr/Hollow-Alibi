@@ -6,13 +6,13 @@ const base=(process.argv.find(a=>a.startsWith('--base='))?.slice(7)||'http://127
 // completion directly and avoids long undici body waits in the local dev proxy.
 function client(){
  let cookie='';
- return async(path,data,origin=base)=>{
+ return async(path,data,origin=base,chunked=false)=>{
   const payload=data?JSON.stringify(data):undefined;
   const url=new URL(base+path);
   const response=await new Promise((resolve,reject)=>{
    const request=(url.protocol==='https:'?httpsRequest:httpRequest)(url,{
     method:data?'POST':'GET',agent:false,
-    headers:{Cookie:cookie,...(data?{'Content-Type':'application/json',Origin:origin,'Content-Length':Buffer.byteLength(payload)}:{})},
+    headers:{Cookie:cookie,...(data?{'Content-Type':'application/json',Origin:origin,...(chunked?{'Transfer-Encoding':'chunked'}:{'Content-Length':Buffer.byteLength(payload)})}:{})},
    },res=>{
     const chunks=[];
     res.on('data',chunk=>chunks.push(chunk));res.on('error',reject);
@@ -35,6 +35,8 @@ const voiceJoin=await host(path+'/voice',voice);assert.equal(voiceJoin.status,20
 const signal={...voice,op:'signal',target:f.viewerId,targetEpoch:epoch,description:{type:'offer',sdp:'v=0\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111\r\n'}};
 assert.equal((await host(path+'/voice',signal)).status,200);assert.equal((await friend(path+'/voice',{...voice,op:'poll'})).body.signals.length,1);assert.equal((await host(path+'/voice',{...voice,op:'poll'})).body.signals.length,0);
 assert.equal((await host(path+'/voice',{...signal,target:'stranger'})).status,409);assert.equal((await host(path+'/voice',{...signal,description:{type:'offer',sdp:'v=0'+ 'x'.repeat(18000)}})).status,413);
+assert.equal((await host(path+'/voice',{...signal,description:{type:'offer',sdp:'v=0'+'x'.repeat(18000)}},base,true)).status,413);
+assert.equal((await host(path)).status,200,'Rejected sized and chunked uploads must leave the room readable');
 assert(!JSON.stringify((await friend(path)).body).includes('m=audio'));
 assert.equal((await action(host,{type:'start'})).status,200);
 assert.equal((await action(host,{type:'proof',test:'weigh'})).status,400);

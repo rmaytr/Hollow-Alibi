@@ -21,6 +21,8 @@ Hiding a card visually is insufficient if its JSON already reached a browser. Ex
 
 ## Tradeoffs and next steps
 
+Public-repository verification also exposed two setup issues: omitted optional WASM entries in the lockfile under Linux/npm, and small rejected HTTP uploads leaving the local Worker proxy unusable. The lockfile now includes the exact missing transitive entries. The HTTP layer drains rejected bodies within a strict discard bound; API checks cover wrong-origin rejection, sized and chunked oversized uploads, and a subsequent healthy room read. No game rules changed, and this publication did not redeploy the existing live service.
+
 Polling avoids a persistent socket service for phase-based play; aggregate writes simplify consistency at the cost of CAS contention. Mesh voice keeps media off the app backend but increases peer upload demand. TURN is verified fallback, not universal network reachability or unlimited quota.
 
 Priorities are device/browser media coverage, scoped credential rotation/usage controls, measured bot comparisons, and sustained multi-room load testing. The statistical bots do not read text or listen to voice; solo teaches mechanics rather than simulating human persuasion.

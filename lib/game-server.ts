@@ -44,12 +44,33 @@ function sameOrigin(request: Request): void {
   const type = request.headers.get("content-type")?.split(";")[0].trim().toLowerCase();
   if (type !== "application/json") throw new GameError("INVALID_CONTENT_TYPE", "Send this request as JSON.", 415);
 }
+async function discardRejectedBody(request: Request, maximum: number, currentReader?: ReadableStreamDefaultReader<Uint8Array>): Promise<void> {
+  if (!currentReader && !request.body) return;
+  const reader = currentReader ?? request.body!.getReader();
+  let discarded = 0;
+  try {
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      discarded += value.length;
+      if (discarded > maximum) { void reader.cancel().catch(() => {}); break; }
+    }
+  } catch { /* Preserve the original validation error on an interrupted upload. */ }
+  finally { reader.releaseLock(); }
+}
 async function body(request: Request, maximum=MAX_BODY): Promise<Record<string, unknown>> {
-  sameOrigin(request);
-  const length = Number(request.headers.get("content-length") ?? 0);
-  if (length > maximum) throw new GameError("BODY_TOO_LARGE", "That request is too large.", 413);
-  if (!request.body) throw new GameError("INVALID_JSON", "The request body is missing.");
-  const reader = request.body.getReader();
+  try {
+    sameOrigin(request);
+    const length = Number(request.headers.get("content-length") ?? 0);
+    if (length > maximum) throw new GameError("BODY_TOO_LARGE", "That request is too large.", 413);
+    if (!request.body) throw new GameError("INVALID_JSON", "The request body is missing.");
+  } catch (error) {
+    // Drain small rejected uploads before responding so local proxy connections
+    // remain usable. Discard without retaining bytes, with a strict upper bound.
+    await discardRejectedBody(request, maximum + 64 * 1024);
+    throw error;
+  }
+  const reader = request.body!.getReader();
   const chunks: Uint8Array[] = [];
   let size = 0;
   while (true) {
@@ -57,7 +78,7 @@ async function body(request: Request, maximum=MAX_BODY): Promise<Record<string, 
     if (done) break;
     size += value.length;
     if (size > maximum) {
-      await reader.cancel();
+      await discardRejectedBody(request, 64 * 1024, reader);
       throw new GameError("BODY_TOO_LARGE", "That request is too large.", 413);
     }
     chunks.push(value);
