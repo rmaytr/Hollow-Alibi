@@ -13,4 +13,4 @@
 
 Optional sound is synthesized through Web Audio. The main UI uses custom CSS/SVG. Starter dependencies include general UI tooling not all used by the game; installed packages are not a feature list.
 
-Social-game research informed the loop. No Liar's Bar characters, dialogue, art or lethal roulette mechanic is included. Public source does not automatically license original assets; see [license status](../LICENSE-STATUS.md) and [notices](../THIRD_PARTY_NOTICES.md).
+Social-game research informed the loop. No Liar's Bar characters, dialogue, art or lethal roulette mechanic is included. Original materials are proprietary, all rights reserved to the extent owned or controlled by the copyright holder; public visibility does not grant a reuse license. Third-party licenses remain unchanged. See [LICENSE](../LICENSE), [license details](../LICENSE-STATUS.md), and [notices](../THIRD_PARTY_NOTICES.md).

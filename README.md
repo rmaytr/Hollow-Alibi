@@ -79,6 +79,8 @@ npm run dev -- --hostname 127.0.0.1 --port 5183
 
 Open **http://127.0.0.1:5183**. Run `db:setup` **once per fresh local database**; it executes the initial SQL migration. Do not replay it on a populated database. Local data stays in ignored `.wrangler/state`, separate from production.
 
+These development instructions are for the owner and anyone with separate permission; they do not grant a [reuse license](LICENSE).
+
 No production credentials are needed for local gameplay or CI. Optional local TURN setup is in [.env.example](.env.example) and [development.md](docs/development.md). Microphones need localhost or HTTPS and browser permission.
 
 ```sh
@@ -140,6 +142,6 @@ Key challenges included private-information boundaries, concurrent actions, retr
 
 Original visuals combine SVG and AI-generated key art; self-hosted font licenses and vendored notices are retained. See [asset provenance](docs/assets.md) and [third-party notices](THIRD_PARTY_NOTICES.md).
 
-**No repository-wide license has been selected by the owner.** Public source does not grant a blanket reuse license. Third-party materials retain their own terms. See [license status](LICENSE-STATUS.md).
+**Proprietary — all rights reserved.** Original project materials are published for portfolio review, with no general reuse, redistribution, or derivative-work license granted. Playing the officially hosted game remains permitted. Third-party materials retain their own terms. See [LICENSE](LICENSE) and [license details](LICENSE-STATUS.md), including GitHub's public-repository viewing and forking terms.
 
 GitHub publication does not automatically redeploy the game. The hosting checkout, live Site identity, and other games remain separate.

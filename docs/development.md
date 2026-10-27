@@ -2,6 +2,8 @@
 
 ## Fresh checkout
 
+These instructions are for the owner and anyone with separate permission under the project's [proprietary terms](../LICENSE). They do not grant a reuse license.
+
 Use Node 24+, npm, and Git. `.nvmrc` selects 24. Native TypeScript execution and `node:sqlite` are used by tests.
 
 ```sh
